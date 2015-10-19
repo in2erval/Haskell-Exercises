@@ -11,7 +11,6 @@ max' = foldl1 (max)
 numUniques :: (Eq a) => [a] -> Int
 numUniques = length . nub
 
-
 split _ [] = []
 split n xs = take n xs : split n (drop n xs)
 

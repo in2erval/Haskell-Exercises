@@ -62,7 +62,10 @@ decipherStr = undefined
 
 -- 10.
 contains :: String -> String -> Bool
-contains = undefined
+contains _ [] = False
+contains str1 (str2:rest)
+    | isPrefixOf str1 (str2:rest) = True
+    | otherwise = contains str1 rest
 
 -- 11.
 candidates :: String -> [(Int, String)]
