@@ -17,8 +17,8 @@ split n xs = take n xs : split n (drop n xs)
 concat' [] = []
 concat' (x:xs) = x ++ concat xs
 
-toDec :: [Char] -> [Int]
-toDec xs = zipWith (*) (iterate (*16) 1) (reverse $ map digitToInt xs)
+toDec :: [Char] -> Integer
+toDec xs = sum $ zipWith (*) (iterate (*16) 1) (reverse $ map (toInteger . digitToInt) xs)
 
 digitToInteger :: Char -> Integer
 digitToInteger = undefined

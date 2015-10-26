@@ -1,7 +1,7 @@
 
 
 data Vector = Vec2 Float Float | Vec3 Float Float Float deriving (Read, Eq)
-data Plane = Plane Vecto Float deriving (Read, Eq)
+data Plane = Plane Vector Float deriving (Read, Eq)
 
 instance Num Vector where 
     Vec2 a b + Vec2 c d = Vec2 (a + c) (b + d)
