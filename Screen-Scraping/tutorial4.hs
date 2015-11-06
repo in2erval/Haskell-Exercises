@@ -90,9 +90,7 @@ prop_prefix_neg str n = sameString str substr || (not $ prefix str substr)
 -- 3.
 contains :: String -> String -> Bool
 contains _ [] = False
-contains str1 (str2:rest)
-    | prefix str1 (str2:rest) = True
-    | otherwise = contains str1 rest
+contains str1 (str2:rest) = prefix str1 (str2:rest) || contains str1 rest
 
 prop_contains :: String -> Int -> Int -> Bool
 prop_contains = undefined
@@ -141,7 +139,7 @@ takeEmails = filter (contains "mailto")
 
 -- 8.
 link2pair :: Link -> (Name, Email)
-link2pair links = (takeUntil "<" (dropUntil ">" links), takeUntil "\"" links)
+link2pair links = (takeUntil "<" (dropUntil ">" links), takeUntil "\"" (dropUntil "mailto:" links))
 
 
 -- 9.
@@ -165,8 +163,10 @@ emailsByNameFromHTML = undefined
 -- Optional Material
 
 -- 12.
-hasInitials :: String -> Name -> Bool
-hasInitials = undefined
+--hasInitials :: String -> Name -> Bool
+hasInitials initials name = or $ zipWith (prefix) (split' initials) (split " " name)
+    where split' [] = []
+          split' (a:str) = [a] : split' str
 
 -- 13.
 emailsByMatchFromHTML :: (Name -> Bool) -> HTML -> [(Name, Email)]
