@@ -92,25 +92,42 @@ prop_toList_fromList_sorted xs ys = toList (fromList zs) == sort zs
 -- Exercise 12
 
 filterLT :: Ord k => k -> Keymap k a -> Keymap k a
-filterLT = undefined
+filterLT _ Leaf = Leaf
+filterLT key (Node k v left right)
+    | k < key   = Node k v (filterLT key left) (filterLT key right)
+    | otherwise = filterLT key left
 
 filterGT :: Ord k => k -> Keymap k a -> Keymap k a
-filterGT = undefined
+filterGT _ Leaf = Leaf
+filterGT key (Node k v left right)
+    | k > key   = Node k v (filterGT key left) (filterGT key right)
+    | otherwise = filterGT key right
 
 -- Exercise 13
 
+t1 = Node 10 "a" (Node 5 "n" (Node 2 "k" Leaf (Node 4 "j" Leaf Leaf)) (Node 6 "v" Leaf Leaf)) (Node 11 "q" Leaf Leaf)
+t2 = Node 3 "a" (Node 1 "n" Leaf Leaf) (Node 7 "v" Leaf (Node 8 "o" Leaf (Node 9 "w" Leaf (Node 12 "l" Leaf Leaf))))
+
 merge :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
-merge = undefined
+merge a Leaf = a
+merge Leaf a = a
+merge (Node k v left right) tree2 = Node k v (merge left (filterLT k tree2)) (merge right (filterGT k tree2))
 
 -- Exercise 14
 
 del :: Ord k => k -> Keymap k a -> Keymap k a
-del = undefined
+del _ Leaf = Leaf
+del key (Node k v left right)
+    | k == key  = merge left right
+    | otherwise = Node k v (del key left) (del key right)
 
 -- Exercise 15
 
 select :: Ord k => (a -> Bool) -> Keymap k a -> Keymap k a
-select = undefined 
+select _ Leaf = Leaf
+select pred (Node k v left right)
+    | pred v    = Node k v (select pred left) (select pred right)
+    | otherwise = merge (select pred left) (select pred right)
 
 -- Instances for QuickCheck -----------------------------
 instance (Ord k, Show k, Show a) => Show (Keymap k a) where
