@@ -40,7 +40,7 @@ isBloodOrange (Orange name _) = name == "Tarocco" || name == "Moro" || name == "
 
 -- 2.
 bloodOrangeSegments :: [Fruit] -> Int
-bloodOrangeSegments frt = sum [a | (Orange _ a) <- frt]
+bloodOrangeSegments frt = sum [a | x@(Orange _ a) <- frt, isBloodOrange x]
 
 -- 3.
 worms :: [Fruit] -> Int
@@ -63,7 +63,7 @@ data Prop = Var Name
 type Names = [Name]
 type Env = [(Name, Bool)]
 
-
+[3,7,1,6,9,10,2]
 -- Functions for handling Props
 
 -- turns a Prop into a string approximating mathematical notation
@@ -126,7 +126,7 @@ tautology :: Prop -> Bool
 tautology p = and $ map (`eval` p) (envs $ names p)
 
 prop_taut1 :: Prop -> Bool
-prop_taut1 = undefined
+prop_taut1 = not. satisfiable . Not
 
 prop_taut2 :: Prop -> Bool
 prop_taut2 = undefined
@@ -142,15 +142,21 @@ p6 = ((Var "P" :<->: Var "Q") :&: ((Var "P" :&: Not (Var "Q")) :|: (Not (Var "P"
 equivalent :: Prop -> Prop -> Bool
 equivalent pa pb = (map (`eval` pa) (envs $ names pa)) == (map (`eval` pb) (envs $ names pb))
 equivalent' :: Prop -> Prop -> Bool
-equivalent' = undefined
+equivalent' pa pb = tautology (pa :<->: pb)
 
 prop_equivalent :: Prop -> Prop -> Bool
-prop_equivalent = undefined
+prop_equivalent pa pb = equivalent pa pb == equivalent' pa pb
 
 
 -- 8.
 subformulas :: Prop -> [Prop]
-subformulas = undefined
+subformulas x@(Var _)		= [x]
+subformulas x@(Not (Var _)) = [x]
+subformulas x@(Not p)		= [x] ++ nub (subformulas p)
+subformulas x@(p :&: q)		= [x] ++ nub (subformulas p ++ subformulas q)
+subformulas x@(p :|: q)		= [x] ++ nub (subformulas p ++ subformulas q)
+subformulas x@(p :->: q)	= [x] ++ nub (subformulas p ++ subformulas q)
+subformulas x@(p :<->: q)	= [x] ++ nub (subformulas p ++ subformulas q)
 
 
 -- Optional Material
@@ -158,12 +164,33 @@ subformulas = undefined
 -- 9.
 -- check for negation normal form
 isNNF :: Prop -> Bool
-isNNF = undefined
+isNNF p = and [pattern a | a <- subformulas p]
+		
+pattern :: Prop -> Bool
+pattern (Var _) = True
+pattern (Not (Var _)) = True
+pattern (Not p) = False
+pattern (p :->: q) = False
+pattern (p :<->: q) = False
+pattern _ = True
 
 -- 10.
 -- convert to negation normal form
+
+-- ¬(P | Q)
 toNNF :: Prop -> Prop
-toNNF = undefined
+toNNF p@(Var _) 		= p
+toNNF (Not (Not p))		= toNNF p
+toNNF (Not (p :&: q)) 	= (Not (toNNF p) :|: Not (toNNF q))
+toNNF (Not (p :|: q)) 	= (Not (toNNF p) :&: Not (toNNF q))
+toNNF (p :&: q)			= (toNNF p) :&: (toNNF q)
+toNNF (p :|: q)			= (toNNF p) :|: (toNNF q)
+toNNF (Not (p :->: q))	= toNNF (Not (toNNF (p :->: q)))
+toNNF (Not (p :<->: q))	= toNNF (Not (toNNF (p :<->: q)))
+toNNF (p :->: q) 		= (Not (toNNF p) :|: (toNNF q))
+toNNF (p :<->: q) 		= ((toNNF (p :->: q)) :&: (toNNF (q :->: p)))
+
+
 
 -- check if result of toNNF is in neg. normal form
 prop_NNF1 :: Prop -> Bool
