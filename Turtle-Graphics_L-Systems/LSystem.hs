@@ -214,7 +214,7 @@ triangle :: Int -> Command
 triangle x  =  p :#: f x
   where
   f 0      = Go 10
-  f x  = f (x-1) :#: p :#: f (x-1) :#: n :#: f (x-1) :#: n :#: f (x-1) :#: p :#: f (x-1)
+  f x      = f (x-1) :#: p :#: f (x-1) :#: n :#: f (x-1) :#: n :#: f (x-1) :#: p :#: f (x-1)
   n        = Turn 90
   p        = Turn (-90)
 
