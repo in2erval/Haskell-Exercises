@@ -53,7 +53,7 @@ maybeToList (Just x) = [x]
 
 listToMaybe :: [a] -> Maybe a
 listToMaybe [] = Nothing
-listToMaybe [x] = Just x
+listToMaybe (x:_) = Just x
 
 catMaybes :: [Maybe a] -> [a]
 catMaybes myb = concat (map maybeToList myb)

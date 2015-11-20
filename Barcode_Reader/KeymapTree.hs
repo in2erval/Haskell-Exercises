@@ -41,6 +41,9 @@ depth :: Ord k => Keymap k a -> Int
 depth Leaf = 0
 depth (Node _ _ left right) = maximum((1 + depth left), (1 + depth right))
 
+depth' Leaf = 0
+depth' (Node _ _ left right) = 1 + (depth left `max` depth right)
+
 -- Exercise 7
 
 toList :: Ord k => Keymap k a -> [(k,a)]
